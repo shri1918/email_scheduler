@@ -23,7 +23,19 @@ class Database:
         
         # Try different connection strategies
         connection_strategies = [
-            # Strategy 1: Use connection string with query parameters (no TLS)
+            # Strategy 1: Use MongoDB Atlas connection string with appName
+            {
+                "name": "MongoDB Atlas with AppName",
+                "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&appName=fastAPIcloud",
+                "config": {
+                    "serverSelectionTimeoutMS": 30000,
+                    "connectTimeoutMS": 30000,
+                    "socketTimeoutMS": 30000,
+                    "maxPoolSize": 10,
+                    "minPoolSize": 1
+                }
+            },
+            # Strategy 2: Use connection string with query parameters (no TLS)
             {
                 "name": "Connection String without TLS",
                 "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&ssl=false",
@@ -35,7 +47,7 @@ class Database:
                     "minPoolSize": 1
                 }
             },
-            # Strategy 2: Use connection string with minimal TLS
+            # Strategy 3: Use connection string with minimal TLS
             {
                 "name": "Connection String with Minimal TLS",
                 "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true",
@@ -45,7 +57,7 @@ class Database:
                     "socketTimeoutMS": 30000
                 }
             },
-            # Strategy 3: Use connection string with full TLS params
+            # Strategy 4: Use connection string with full TLS params
             {
                 "name": "Connection String with Full TLS Params",
                 "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true",
@@ -55,7 +67,7 @@ class Database:
                     "socketTimeoutMS": 30000
                 }
             },
-            # Strategy 4: Use direct TLS configuration with SSL context
+            # Strategy 5: Use direct TLS configuration with SSL context
             {
                 "name": "Direct TLS with SSL Context",
                 "url_modifier": lambda url: url,
@@ -72,7 +84,7 @@ class Database:
                     "ssl_ca_certs": None
                 }
             },
-            # Strategy 5: Use basic connection without any SSL/TLS
+            # Strategy 6: Use basic connection without any SSL/TLS
             {
                 "name": "Basic Connection No SSL",
                 "url_modifier": lambda url: url,
@@ -84,7 +96,7 @@ class Database:
                     "socketTimeoutMS": 30000
                 }
             },
-            # Strategy 6: Use connection string with database name in URL
+            # Strategy 7: Use connection string with database name in URL
             {
                 "name": "Connection String with DB Name",
                 "url_modifier": lambda url: f"{url}{settings.mongodb_db}?retryWrites=true&w=majority&ssl=false",

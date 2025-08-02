@@ -14,22 +14,28 @@ This guide provides multiple strategies to resolve MongoDB connection issues on 
 
 Set these environment variables in your Railway dashboard:
 
-### Option A: Use Connection String with Query Parameters (Recommended)
+### Option A: Use MongoDB Atlas Connection String with AppName (Recommended)
+```bash
+MONGODB_URL=mongodb+srv://shri66688:4mrOf12CkYQWUuAf@fastapicloud.g5qhi.mongodb.net/?retryWrites=true&w=majority&appName=fastAPIcloud
+MONGODB_DB=email_scheduler
+```
+
+### Option B: Use Connection String with Query Parameters
 ```bash
 MONGODB_URL=mongodb+srv://shri66688:4mrOf12CkYQWUuAf@fastapicloud.g5qhi.mongodb.net/email_scheduler?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true
 MONGODB_DB=email_scheduler
 ```
 
-### Option B: Use Alternative Connection String
+### Option C: Use Alternative Connection String
 ```bash
-MONGODB_URL=mongodb+srv://shri66688:4mrOf12CkYQWUuAf@fastapicloud.g5qhi.mongodb.net/email_scheduler?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true
+MONGODB_URL=mongodb+srv://shri66688:4mrOf12CkYQWUuAf@fastapicloud.g5qhi.mongodb.net/?retryWrites=true&w=majority&appName=fastAPIcloud&tls=true&tlsAllowInvalidCertificates=true
 MONGODB_DB=email_scheduler
 ```
 
-### Option C: Use Railway MongoDB Plugin (Best Practice)
+### Option D: Use Railway MongoDB Plugin (Best Practice)
 1. Add MongoDB plugin to your Railway project
-2. Railway will automatically set `MONGODB_URL`
-3. Set only: `MONGODB_DB=email_scheduler`
+2. Railway will automatically set `MONGODB_URL` environment variable
+3. Set `MONGODB_DB` to your desired database name
 
 ## Step 2: MongoDB Atlas Configuration
 
@@ -101,7 +107,7 @@ INFO:database:Successfully connected to MongoDB using URL 1 and strategy 1
 ### Recommended Environment Variables:
 ```bash
 # MongoDB Configuration
-MONGODB_URL=mongodb+srv://shri66688:4mrOf12CkYQWUuAf@fastapicloud.g5qhi.mongodb.net/email_scheduler?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true
+MONGODB_URL=mongodb+srv://shri66688:4mrOf12CkYQWUuAf@fastapicloud.g5qhi.mongodb.net/?retryWrites=true&w=majority&appName=fastAPIcloud
 MONGODB_DB=email_scheduler
 
 # Google OAuth2 Configuration
