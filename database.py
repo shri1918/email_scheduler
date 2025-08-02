@@ -5,6 +5,7 @@ from datetime import datetime
 import logging
 import asyncio
 import ssl
+import os
 from config import settings
 from models import User, EmailJob, EmailJobStatus
 
@@ -16,47 +17,69 @@ class Database:
     db = None
 
     async def connect_to_mongo(self):
-        """Create database connection with retry logic and SSL configuration."""
+        """Create database connection with retry logic and multiple fallback strategies."""
         max_retries = 3
         retry_delay = 2
         
-        # Try different connection configurations (modern PyMongo syntax)
-        connection_configs = [
-            # Configuration 1: Standard TLS with certificate verification disabled
+        # Try different connection strategies
+        connection_strategies = [
+            # Strategy 1: Use connection string with query parameters
             {
-                "tls": True,
-                "tlsAllowInvalidCertificates": True,
-                "tlsAllowInvalidHostnames": True,
-                "retryWrites": True,
-                "w": "majority",
-                "maxPoolSize": 10,
-                "minPoolSize": 1,
-                "serverSelectionTimeoutMS": 30000,
-                "connectTimeoutMS": 30000,
-                "socketTimeoutMS": 30000
+                "name": "Connection String with Query Params",
+                "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true",
+                "config": {
+                    "serverSelectionTimeoutMS": 30000,
+                    "connectTimeoutMS": 30000,
+                    "socketTimeoutMS": 30000,
+                    "maxPoolSize": 10,
+                    "minPoolSize": 1
+                }
             },
-            # Configuration 2: Minimal TLS configuration
+            # Strategy 2: Use connection string with TLS parameters
             {
-                "tls": True,
-                "tlsAllowInvalidCertificates": True,
-                "serverSelectionTimeoutMS": 30000,
-                "connectTimeoutMS": 30000,
-                "socketTimeoutMS": 30000
+                "name": "Connection String with TLS Params",
+                "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true",
+                "config": {
+                    "serverSelectionTimeoutMS": 30000,
+                    "connectTimeoutMS": 30000,
+                    "socketTimeoutMS": 30000
+                }
             },
-            # Configuration 3: Basic connection with timeouts
+            # Strategy 3: Use connection string without TLS (fallback)
             {
-                "serverSelectionTimeoutMS": 30000,
-                "connectTimeoutMS": 30000,
-                "socketTimeoutMS": 30000,
-                "retryWrites": True,
-                "w": "majority"
+                "name": "Connection String without TLS",
+                "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority",
+                "config": {
+                    "tls": False,
+                    "serverSelectionTimeoutMS": 30000,
+                    "connectTimeoutMS": 30000,
+                    "socketTimeoutMS": 30000
+                }
             },
-            # Configuration 4: No TLS (fallback)
+            # Strategy 4: Use direct TLS configuration
             {
-                "tls": False,
-                "serverSelectionTimeoutMS": 30000,
-                "connectTimeoutMS": 30000,
-                "socketTimeoutMS": 30000
+                "name": "Direct TLS Configuration",
+                "url_modifier": lambda url: url,
+                "config": {
+                    "tls": True,
+                    "tlsAllowInvalidCertificates": True,
+                    "tlsAllowInvalidHostnames": True,
+                    "retryWrites": True,
+                    "w": "majority",
+                    "serverSelectionTimeoutMS": 30000,
+                    "connectTimeoutMS": 30000,
+                    "socketTimeoutMS": 30000
+                }
+            },
+            # Strategy 5: Minimal configuration
+            {
+                "name": "Minimal Configuration",
+                "url_modifier": lambda url: url,
+                "config": {
+                    "serverSelectionTimeoutMS": 30000,
+                    "connectTimeoutMS": 30000,
+                    "socketTimeoutMS": 30000
+                }
             }
         ]
         
@@ -66,18 +89,21 @@ class Database:
             urls_to_try.append(settings.mongodb_url_alt)
         
         for attempt in range(max_retries):
-            for url_index, mongodb_url in enumerate(urls_to_try):
-                for config_index, config in enumerate(connection_configs):
+            for url_index, base_url in enumerate(urls_to_try):
+                for strategy_index, strategy in enumerate(connection_strategies):
                     try:
-                        logger.info(f"Attempting to connect to MongoDB (attempt {attempt + 1}/{max_retries}, URL {url_index + 1}/{len(urls_to_try)}, config {config_index + 1}/{len(connection_configs)})")
-                        logger.info(f"MongoDB URL: {mongodb_url}")
-                        logger.info(f"MongoDB Database: {settings.mongodb_db}")
-                        logger.info(f"TLS Configuration: {config}")
+                        logger.info(f"Attempting to connect to MongoDB (attempt {attempt + 1}/{max_retries}, URL {url_index + 1}/{len(urls_to_try)}, strategy {strategy_index + 1}/{len(connection_strategies)})")
                         
-                        # Create client with current configuration
+                        # Modify URL according to strategy
+                        modified_url = strategy["url_modifier"](base_url)
+                        logger.info(f"Strategy: {strategy['name']}")
+                        logger.info(f"Modified URL: {modified_url}")
+                        logger.info(f"Config: {strategy['config']}")
+                        
+                        # Create client with current strategy
                         self.client = AsyncIOMotorClient(
-                            mongodb_url,
-                            **config
+                            modified_url,
+                            **strategy["config"]
                         )
                         
                         # Test the connection
@@ -97,24 +123,24 @@ class Database:
                             logger.warning(f"Failed to create some indexes: {index_error}")
                             # Continue even if index creation fails
                         
-                        logger.info(f"Successfully connected to MongoDB using URL {url_index + 1} and configuration {config_index + 1}")
+                        logger.info(f"Successfully connected to MongoDB using URL {url_index + 1} and strategy {strategy_index + 1}")
                         return
                         
                     except Exception as e:
-                        logger.warning(f"URL {url_index + 1}, Configuration {config_index + 1} failed: {e}")
+                        logger.warning(f"URL {url_index + 1}, Strategy {strategy_index + 1} failed: {e}")
                         if self.client:
                             self.client.close()
                             self.client = None
                         continue
             
-            # If all configurations failed, wait and retry
-            logger.error(f"All connection configurations failed (attempt {attempt + 1}/{max_retries})")
+            # If all strategies failed, wait and retry
+            logger.error(f"All connection strategies failed (attempt {attempt + 1}/{max_retries})")
             if attempt < max_retries - 1:
                 logger.info(f"Retrying in {retry_delay} seconds...")
                 await asyncio.sleep(retry_delay)
                 retry_delay *= 2  # Exponential backoff
             else:
-                logger.error("Failed to connect to MongoDB after all retries and configurations")
+                logger.error("Failed to connect to MongoDB after all retries and strategies")
                 raise Exception("All MongoDB connection attempts failed")
 
     async def close_mongo_connection(self):
