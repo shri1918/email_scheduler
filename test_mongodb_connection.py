@@ -5,7 +5,6 @@ This script tests different MongoDB connection configurations to find one that w
 """
 
 import asyncio
-import ssl
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -36,17 +35,17 @@ async def test_mongodb_connection(mongodb_url, config_name, config):
 
 async def main():
     """Main function to test all configurations."""
-    mongodb_url = os.getenv("MONGODB_URL", "mongodb+srv://shri66688:4mrOf12CkYQWUuAf@fastapicloud.g5qhi.mongodb.net/")
+    mongodb_url = os.getenv("MONGODB_URL", "mongodb+srv://shri66688:4mrOf12CkYQWUuAf@fastapicloud.g5qhi.mongodb.net/email_scheduler?retryWrites=true&w=majority")
     
     print("🚀 Testing MongoDB Connection Configurations")
     print("=" * 60)
     
-    # Different connection configurations to test
+    # Different connection configurations to test (modern PyMongo syntax)
     configs = {
-        "Standard SSL (No Cert Verification)": {
-            "ssl": True,
-            "ssl_cert_reqs": ssl.CERT_NONE,
-            "ssl_ca_certs": None,
+        "Standard TLS (No Cert Verification)": {
+            "tls": True,
+            "tlsAllowInvalidCertificates": True,
+            "tlsAllowInvalidHostnames": True,
             "retryWrites": True,
             "w": "majority",
             "maxPoolSize": 10,
@@ -55,30 +54,22 @@ async def main():
             "connectTimeoutMS": 30000,
             "socketTimeoutMS": 30000
         },
-        "Minimal SSL": {
-            "ssl": True,
-            "ssl_cert_reqs": ssl.CERT_NONE,
-            "serverSelectionTimeoutMS": 30000,
-            "connectTimeoutMS": 30000,
-            "socketTimeoutMS": 30000
-        },
-        "No SSL": {
-            "ssl": False,
-            "serverSelectionTimeoutMS": 30000,
-            "connectTimeoutMS": 30000,
-            "socketTimeoutMS": 30000
-        },
-        "TLS 1.2 Only": {
-            "ssl": True,
-            "ssl_cert_reqs": ssl.CERT_NONE,
-            "ssl_ca_certs": None,
+        "Minimal TLS": {
+            "tls": True,
             "tlsAllowInvalidCertificates": True,
-            "tlsAllowInvalidHostnames": True,
             "serverSelectionTimeoutMS": 30000,
             "connectTimeoutMS": 30000,
             "socketTimeoutMS": 30000
         },
         "Basic Connection": {
+            "serverSelectionTimeoutMS": 30000,
+            "connectTimeoutMS": 30000,
+            "socketTimeoutMS": 30000,
+            "retryWrites": True,
+            "w": "majority"
+        },
+        "No TLS": {
+            "tls": False,
             "serverSelectionTimeoutMS": 30000,
             "connectTimeoutMS": 30000,
             "socketTimeoutMS": 30000

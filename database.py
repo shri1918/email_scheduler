@@ -20,13 +20,13 @@ class Database:
         max_retries = 3
         retry_delay = 2
         
-        # Try different connection configurations
+        # Try different connection configurations (modern PyMongo syntax)
         connection_configs = [
-            # Configuration 1: Standard SSL with certificate verification disabled
+            # Configuration 1: Standard TLS with certificate verification disabled
             {
-                "ssl": True,
-                "ssl_cert_reqs": ssl.CERT_NONE,
-                "ssl_ca_certs": None,
+                "tls": True,
+                "tlsAllowInvalidCertificates": True,
+                "tlsAllowInvalidHostnames": True,
                 "retryWrites": True,
                 "w": "majority",
                 "maxPoolSize": 10,
@@ -35,17 +35,25 @@ class Database:
                 "connectTimeoutMS": 30000,
                 "socketTimeoutMS": 30000
             },
-            # Configuration 2: Minimal SSL configuration
+            # Configuration 2: Minimal TLS configuration
             {
-                "ssl": True,
-                "ssl_cert_reqs": ssl.CERT_NONE,
+                "tls": True,
+                "tlsAllowInvalidCertificates": True,
                 "serverSelectionTimeoutMS": 30000,
                 "connectTimeoutMS": 30000,
                 "socketTimeoutMS": 30000
             },
-            # Configuration 3: No SSL (fallback)
+            # Configuration 3: Basic connection with timeouts
             {
-                "ssl": False,
+                "serverSelectionTimeoutMS": 30000,
+                "connectTimeoutMS": 30000,
+                "socketTimeoutMS": 30000,
+                "retryWrites": True,
+                "w": "majority"
+            },
+            # Configuration 4: No TLS (fallback)
+            {
+                "tls": False,
                 "serverSelectionTimeoutMS": 30000,
                 "connectTimeoutMS": 30000,
                 "socketTimeoutMS": 30000
@@ -64,7 +72,7 @@ class Database:
                         logger.info(f"Attempting to connect to MongoDB (attempt {attempt + 1}/{max_retries}, URL {url_index + 1}/{len(urls_to_try)}, config {config_index + 1}/{len(connection_configs)})")
                         logger.info(f"MongoDB URL: {mongodb_url}")
                         logger.info(f"MongoDB Database: {settings.mongodb_db}")
-                        logger.info(f"SSL Configuration: {config}")
+                        logger.info(f"TLS Configuration: {config}")
                         
                         # Create client with current configuration
                         self.client = AsyncIOMotorClient(
