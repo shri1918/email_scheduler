@@ -23,10 +23,10 @@ class Database:
         
         # Try different connection strategies
         connection_strategies = [
-            # Strategy 1: Use connection string with query parameters
+            # Strategy 1: Use connection string with query parameters (no TLS)
             {
-                "name": "Connection String with Query Params",
-                "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true",
+                "name": "Connection String without TLS",
+                "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&ssl=false",
                 "config": {
                     "serverSelectionTimeoutMS": 30000,
                     "connectTimeoutMS": 30000,
@@ -35,9 +35,19 @@ class Database:
                     "minPoolSize": 1
                 }
             },
-            # Strategy 2: Use connection string with TLS parameters
+            # Strategy 2: Use connection string with minimal TLS
             {
-                "name": "Connection String with TLS Params",
+                "name": "Connection String with Minimal TLS",
+                "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true",
+                "config": {
+                    "serverSelectionTimeoutMS": 30000,
+                    "connectTimeoutMS": 30000,
+                    "socketTimeoutMS": 30000
+                }
+            },
+            # Strategy 3: Use connection string with full TLS params
+            {
+                "name": "Connection String with Full TLS Params",
                 "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true",
                 "config": {
                     "serverSelectionTimeoutMS": 30000,
@@ -45,20 +55,9 @@ class Database:
                     "socketTimeoutMS": 30000
                 }
             },
-            # Strategy 3: Use connection string without TLS (fallback)
+            # Strategy 4: Use direct TLS configuration with SSL context
             {
-                "name": "Connection String without TLS",
-                "url_modifier": lambda url: f"{url}?retryWrites=true&w=majority",
-                "config": {
-                    "tls": False,
-                    "serverSelectionTimeoutMS": 30000,
-                    "connectTimeoutMS": 30000,
-                    "socketTimeoutMS": 30000
-                }
-            },
-            # Strategy 4: Use direct TLS configuration
-            {
-                "name": "Direct TLS Configuration",
+                "name": "Direct TLS with SSL Context",
                 "url_modifier": lambda url: url,
                 "config": {
                     "tls": True,
@@ -68,13 +67,27 @@ class Database:
                     "w": "majority",
                     "serverSelectionTimeoutMS": 30000,
                     "connectTimeoutMS": 30000,
+                    "socketTimeoutMS": 30000,
+                    "ssl_cert_reqs": ssl.CERT_NONE,
+                    "ssl_ca_certs": None
+                }
+            },
+            # Strategy 5: Use basic connection without any SSL/TLS
+            {
+                "name": "Basic Connection No SSL",
+                "url_modifier": lambda url: url,
+                "config": {
+                    "ssl": False,
+                    "tls": False,
+                    "serverSelectionTimeoutMS": 30000,
+                    "connectTimeoutMS": 30000,
                     "socketTimeoutMS": 30000
                 }
             },
-            # Strategy 5: Minimal configuration
+            # Strategy 6: Use connection string with database name in URL
             {
-                "name": "Minimal Configuration",
-                "url_modifier": lambda url: url,
+                "name": "Connection String with DB Name",
+                "url_modifier": lambda url: f"{url}{settings.mongodb_db}?retryWrites=true&w=majority&ssl=false",
                 "config": {
                     "serverSelectionTimeoutMS": 30000,
                     "connectTimeoutMS": 30000,
@@ -141,7 +154,9 @@ class Database:
                 retry_delay *= 2  # Exponential backoff
             else:
                 logger.error("Failed to connect to MongoDB after all retries and strategies")
-                raise Exception("All MongoDB connection attempts failed")
+                # Don't raise exception, let the app start without database
+                logger.warning("Application will start without database connection. Health check will show degraded status.")
+                return
 
     async def close_mongo_connection(self):
         """Close database connection."""
