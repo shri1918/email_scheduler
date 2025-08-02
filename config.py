@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     mongodb_url: str = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
     mongodb_db: str = os.getenv("MONGODB_DB", "email_scheduler")
     
+    # Alternative MongoDB connection for Railway (if main one fails)
+    mongodb_url_alt: str = os.getenv("MONGODB_URL_ALT", "")
+    
     # Google OAuth2 Configuration
     google_client_id: str = os.getenv("GOOGLE_CLIENT_ID", "383809440934-j3j60ub8fmmfgf1b34p65lp5pqvt0g8k.apps.googleusercontent.com")
     google_client_secret: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
