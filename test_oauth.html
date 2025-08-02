@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth2 Test</title>
+</head>
+<body>
+    <h1>OAuth2 Test</h1>
+    <button onclick="testOAuth()">Test OAuth2</button>
+    <div id="result"></div>
+
+    <script>
+        async function testOAuth() {
+            try {
+                const response = await fetch('http://localhost:8000/auth/google');
+                const data = await response.json();
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>OAuth2 URL:</h3>
+                    <p><a href="${data.auth_url}" target="_blank">Click here to test OAuth2</a></p>
+                    <h3>Details:</h3>
+                    <ul>
+                        <li>Client ID: ${data.auth_url.split('client_id=')[1].split('&')[0]}</li>
+                        <li>Redirect URI: ${decodeURIComponent(data.auth_url.split('redirect_uri=')[1].split('&')[0])}</li>
+                    </ul>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html> 

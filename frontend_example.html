@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Scheduler - Professional UI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            color: #1a202c;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Responsive Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0.75rem 0;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            min-height: 3rem;
+        }
+
+        /* Logo Section */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a202c;
+            white-space: nowrap;
+        }
+
+        /* User Info Section */
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            min-width: 0; /* Allow shrinking */
+        }
+
+        .avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            min-width: 0; /* Allow text truncation */
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #1a202c;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .user-email {
+            font-size: 0.75rem;
+            color: #718096;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .logout-btn {
+            flex-shrink: 0;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .card-header-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .card-title i {
+            color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .card-description {
+            color: #718096;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Toggle Button */
+        .toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .toggle-btn.collapsed {
+            background: #6b7280;
+        }
+
+        .toggle-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-btn.collapsed i {
+            transform: rotate(180deg);
+        }
+
+        /* Collapsible Content */
+        .collapsible-content {
+            max-height: 1000px;
+            opacity: 1;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 1.5rem;
+        }
+
+        /* Floating Action Button for Create Job */
+        .fab-create {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 50;
+            display: none;
+        }
+
+        .fab-create:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .fab-create.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Auth Section */
+        .auth-card {
+            max-width: 28rem;
+            margin: 4rem auto;
+        }
+
+        .auth-header {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .auth-icon {
+            width: 4rem;
+            height: 4rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            opacity: 0.9;
+            font-size: 0.875rem;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: white;
+            color: #1a202c;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            min-height: 44px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #374151;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            min-height: 48px;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            min-height: 36px;
+        }
+
+        /* Job Cards */
+        .jobs-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .job-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .job-card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .job-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1a202c;
+            line-height: 1.3;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .job-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .job-status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .job-status.paused {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .job-info {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .job-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .job-info-item i {
+            width: 1rem;
+            text-align: center;
+            color: #9ca3af;
+            flex-shrink: 0;
+        }
+
+        .job-info-item span {
+            word-break: break-word;
+            min-width: 0;
+        }
+
+        .job-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Alerts */
+        .alerts-container {
+            position: fixed;
+            top: 5rem;
+            right: 1rem;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 350px;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .spinner {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #718096;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #d1d5db;
+        }
+
+        .empty-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .empty-description {
+            font-size: 0.875rem;
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mt-8 { margin-top: 2rem; }
+
+        /* Responsive Design */
+        @media (min-width: 640px) {
+            .form-grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .jobs-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 0 2rem;
+            }
+            
+            .header {
+                padding: 1rem 0;
+            }
+            
+            .card-header,
+            .card-content {
+                padding: 2rem;
+            }
+            
+            .collapsible-content.collapsed {
+                padding: 0 2rem;
+            }
+        }
+
+        /* Mobile Responsive Fixes */
+        @media (max-width: 767px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .header {
+                padding: 0.5rem 0;
+            }
+            
+            .header-content {
+                min-height: 2.5rem;
+            }
+            
+            /* Logo adjustments for mobile */
+            .logo-icon {
+                width: 2rem;
+                height: 2rem;
+                font-size: 1rem;
+            }
+            
+            .logo-text {
+                font-size: 1rem;
+            }
+            
+            /* User info adjustments for mobile */
+            .user-info {
+                padding: 0.375rem 0.75rem;
+            }
+            
+            .avatar {
+                width: 1.75rem;
+                height: 1.75rem;
+                font-size: 0.75rem;
+            }
+            
+            .user-name {
+                font-size: 0.75rem;
+                max-width: 100px;
+            }
+            
+            .user-email {
+                font-size: 0.625rem;
+                max-width: 100px;
+            }
+            
+            /* Card adjustments */
+            .card-header {
+                padding: 1rem;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+            
+            .card-header-content {
+                order: 1;
+            }
+            
+            .toggle-btn {
+                order: 2;
+                align-self: flex-end;
+                width: 2rem;
+                height: 2rem;
+                font-size: 0.875rem;
+            }
+            
+            .card-content {
+                padding: 1rem;
+            }
+            
+            .collapsible-content.collapsed {
+                padding: 0 1rem;
+            }
+            
+            .card-title {
+                font-size: 1.125rem;
+            }
+            
+            .card-description {
+                font-size: 0.8125rem;
+            }
+            
+            /* Auth card mobile */
+            .auth-card {
+                margin: 2rem auto;
+            }
+            
+            .auth-header {
+                padding: 1.5rem;
+            }
+            
+            .auth-icon {
+                width: 3rem;
+                height: 3rem;
+                font-size: 1.5rem;
+            }
+            
+            .auth-title {
+                font-size: 1.25rem;
+            }
+            
+            /* Job cards mobile */
+            .job-card {
+                padding: 1rem;
+            }
+            
+            .job-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .job-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* Alerts mobile */
+            .alerts-container {
+                left: 1rem;
+                right: 1rem;
+                max-width: none;
+                top: 4rem;
+            }
+            
+            /* FAB mobile */
+            .fab-create {
+                bottom: 1rem;
+                right: 1rem;
+                width: 3rem;
+                height: 3rem;
+                font-size: 1.125rem;
+            }
+            
+            /* Form inputs mobile */
+            .form-input,
+            .form-textarea {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            .header-content {
+                gap: 0.5rem;
+            }
+            
+            .logo {
+                gap: 0.5rem;
+            }
+            
+            .logo-text {
+                font-size: 0.875rem;
+            }
+            
+            .user-info {
+                padding: 0.25rem 0.5rem;
+                gap: 0.5rem;
+            }
+            
+            .user-name {
+                max-width: 80px;
+            }
+            
+            .user-email {
+                max-width: 80px;
+            }
+            
+            .btn-sm {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.6875rem;
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 360px) {
+            .logo-text {
+                display: none;
+            }
+            
+            .user-details {
+                display: none;
+            }
+            
+            .user-info {
+                padding: 0.25rem;
+            }
+        }
+
+        /* Focus styles for accessibility */
+        .btn:focus,
+        .form-input:focus,
+        .form-textarea:focus,
+        .toggle-btn:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        /* Improve touch targets on mobile */
+        @media (max-width: 767px) {
+            .btn {
+                min-height: 48px;
+                padding: 0.875rem 1.5rem;
+            }
+            
+            .btn-sm {
+                min-height: 44px;
+                padding: 0.75rem 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="logo-text">Email Scheduler</div>
+                </div>
+                
+                <div class="user-section">
+                    <div id="user-info" class="user-info hidden">
+                        <div class="avatar" id="user-avatar"></div>
+                        <div class="user-details">
+                            <div class="user-name" id="user-name"></div>
+                            <div class="user-email" id="user-email"></div>
+                        </div>
+                        <button class="btn btn-outline btn-sm logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="logout-text">Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Alerts Container -->
+        <div id="alerts" class="alerts-container"></div>
+
+        <!-- Authentication Section -->
+        <div id="auth-section" class="card auth-card">
+            <div class="auth-header">
+                <div class="auth-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h1 class="auth-title">Email Scheduler</h1>
+                <p class="auth-subtitle">Professional recurring email automation with Google OAuth2</p>
+            </div>
+            <div class="card-content">
+                <div class="text-center">
+                    <p style="margin-bottom: 1.5rem; color: #718096;">
+                        Sign in with your Google account to get started
+                    </p>
+                    <button class="btn btn-primary btn-lg" onclick="authenticate()" style="width: 100%;">
+                        <i class="fab fa-google"></i>
+                        Sign in with Google
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create/Edit Job Section -->
+        <div id="job-section" class="card hidden">
+            <div class="card-header">
+                <div class="card-header-content">
+                    <h2 class="card-title">
+                        <i class="fas fa-plus" id="job-form-icon"></i>
+                        <span id="job-form-title">Create Email Job</span>
+                    </h2>
+                    <p class="card-description" id="job-form-description">Set up a new recurring email job</p>
+                </div>
+                <button class="toggle-btn" id="toggle-create-job" onclick="toggleCreateJob()">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+            </div>
+            <div class="collapsible-content" id="job-form-content">
+                <div class="card-content">
+                    <form id="job-form">
+                        <input type="hidden" id="edit-job-id">
+                        
+                        <div class="form-grid form-grid-2 mb-4">
+                            <div class="form-group">
+                                <label class="form-label" for="recipient">Recipient Email</label>
+                                <input type="email" id="recipient" class="form-input" placeholder="recipient@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="every-n-days">Send every N days</label>
+                                <input type="number" id="every-n-days" class="form-input" min="1" value="7" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="subject">Subject</label>
+                            <input type="text" id="subject" class="form-input" placeholder="Email subject line" required>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="body">Message Body</label>
+                            <textarea id="body" class="form-textarea" placeholder="Your email message..." required></textarea>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="file-upload">Attachment (optional)</label>
+                            <input type="file" id="file-upload" class="form-input">
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-primary" id="submit-btn">
+                                <i class="fas fa-plus"></i>
+                                Create Email Job
+                            </button>
+                            <button type="button" class="btn btn-outline hidden" id="cancel-edit-btn" onclick="cancelEdit()">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jobs List Section -->
+        <div id="jobs-section" class="card hidden">
+            <div class="card-header">
+                <div class="card-header-content">
+                    <h2 class="card-title">
+                        <i class="fas fa-list"></i>
+                        Your Email Jobs
+                    </h2>
+                    <p class="card-description">
+                        Manage your recurring email schedules • <span id="jobs-count">0 jobs</span>
+                    </p>
+                </div>
+            </div>
+            <div class="card-content">
+                <div id="jobs-list" class="jobs-grid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading jobs...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button for Create Job -->
+    <button class="fab-create" id="fab-create" onclick="showCreateJob()">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let authToken = localStorage.getItem('auth_token');
+        let jobs = [];
+        let editingJob = null;
+        let createJobVisible = true;
+
+        // Initialize
+        window.addEventListener('load', checkAuthStatus);
+
+        function checkAuthStatus() {
+            if (authToken) {
+                showUserInfo();
+                loadJobs();
+            } else {
+                showLoginForm();
+            }
+
+            // Handle OAuth callback
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const error = urlParams.get('error');
+
+            if (token) {
+                localStorage.setItem('auth_token', token);
+                authToken = token;
+                window.history.replaceState({}, document.title, window.location.pathname);
+                checkAuthStatus();
+                showAlert('Authentication successful!', 'success');
+            } else if (error) {
+                showAlert('Authentication failed. Please try again.', 'error');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // Toggle Create Job Section
+        function toggleCreateJob() {
+            const content = document.getElementById('job-form-content');
+            const toggleBtn = document.getElementById('toggle-create-job');
+            const fabBtn = document.getElementById('fab-create');
+            
+            createJobVisible = !createJobVisible;
+            
+            if (createJobVisible) {
+                content.classList.remove('collapsed');
+                toggleBtn.classList.remove('collapsed');
+                fabBtn.classList.remove('show');
+            } else {
+                content.classList.add('collapsed');
+                toggleBtn.classList.add('collapsed');
+                fabBtn.classList.add('show');
+            }
+        }
+
+        // Show Create Job Section (from FAB)
+        function showCreateJob() {
+            const content = document.getElementById('job-form-content');
+            const toggleBtn = document.getElementById('toggle-create-job');
+            const fabBtn = document.getElementById('fab-create');
+            
+            createJobVisible = true;
+            content.classList.remove('collapsed');
+            toggleBtn.classList.remove('collapsed');
+            fabBtn.classList.remove('show');
+            
+            // Scroll to the form
+            document.getElementById('job-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function authenticate() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/google`);
+                const data = await response.json();
+                window.location.href = data.auth_url;
+            } catch (error) {
+                console.error('Error getting auth URL:', error);
+                showAlert('Error starting authentication', 'error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('auth_token');
+            authToken = null;
+            showLoginForm();
+            showAlert('Logged out successfully', 'success');
+        }
+
+        function showLoginForm() {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('user-info').classList.add('hidden');
+            document.getElementById('job-section').classList.add('hidden');
+            document.getElementById('jobs-section').classList.add('hidden');
+            document.getElementById('fab-create').classList.remove('show');
+        }
+
+        async function showUserInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('user-name').textContent = user.name;
+                    document.getElementById('user-email').textContent = user.email;
+                    document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
+                    
+                    document.getElementById('auth-section').classList.add('hidden');
+                    document.getElementById('user-info').classList.remove('hidden');
+                    document.getElementById('job-section').classList.remove('hidden');
+                    document.getElementById('jobs-section').classList.remove('hidden');
+                } else {
+                    localStorage.removeItem('auth_token');
+                    authToken = null;
+                    showLoginForm();
+                }
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+                showAlert('Error fetching user information', 'error');
+            }
+        }
+
+        // Job form submission
+        document.getElementById('job-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const editJobId = document.getElementById('edit-job-id').value;
+            const isEditing = editJobId !== '';
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const originalHTML = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="spinner"></div> Processing...';
+            submitBtn.disabled = true;
+
+            const jobData = {
+                recipient: document.getElementById('recipient').value,
+                subject: document.getElementById('subject').value,
+                body: document.getElementById('body').value,
+                every_n_days: parseInt(document.getElementById('every-n-days').value),
+                attachments: []
+            };
+
+            try {
+                const url = isEditing ? `${API_BASE}/jobs/${editJobId}` : `${API_BASE}/jobs`;
+                const method = isEditing ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(jobData)
+                });
+
+                if (response.ok) {
+                    const message = isEditing ? 'Email job updated successfully!' : 'Email job created successfully!';
+                    showAlert(message, 'success');
+                    resetForm();
+                    loadJobs();
+                } else {
+                    const error = await response.json();
+                    showAlert(`Error ${isEditing ? 'updating' : 'creating'} job: ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                console.error(`Error ${isEditing ? 'updating' : 'creating'} job:`, error);
+                showAlert(`Error ${isEditing ? 'updating' : 'creating'} email job`, 'error');
+            } finally {
+                submitBtn.innerHTML = originalHTML;
+                submitBtn.disabled = false;
+            }
+        });
+
+        async function loadJobs() {
+            try {
+                const response = await fetch(`${API_BASE}/jobs`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    jobs = await response.json();
+                    displayJobs(jobs);
+                } else {
+                    showAlert('Error loading jobs', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                showAlert('Error loading email jobs', 'error');
+            }
+        }
+
+        function displayJobs(jobs) {
+            const jobsList = document.getElementById('jobs-list');
+            const jobsCount = document.getElementById('jobs-count');
+            
+            jobsCount.textContent = `${jobs.length} ${jobs.length === 1 ? 'job' : 'jobs'}`;
+
+            if (jobs.length === 0) {
+                jobsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <div class="empty-title">No email jobs yet</div>
+                        <div class="empty-description">Create your first email job to get started!</div>
+                    </div>
+                `;
+                return;
+            }
+
+            jobsList.innerHTML = jobs.map(job => `
+                <div class="job-card">
+                    <div class="job-header">
+                        <h3 class="job-title">${job.subject}</h3>
+                        <span class="job-status ${job.status}">${job.status}</span>
+                    </div>
+                    
+                    <div class="job-info">
+                        <div class="job-info-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>${job.recipient}</span>
+                        </div>
+                        <div class="job-info-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Every ${job.every_n_days} days</span>
+                        </div>
+                        <div class="job-info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Next: ${job.next_send ? new Date(job.next_send).toLocaleDateString() : 'Not scheduled'}</span>
+                        </div>
+                        <div class="job-info-item">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Last: ${job.last_sent ? new Date(job.last_sent).toLocaleDateString() : 'Never'}</span>
+                        </div>
+                    </div>
+
+                    <div class="job-actions">
+                        <button class="btn btn-outline btn-sm" onclick="editJob('${job.id}')">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="sendNow('${job.id}')">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Now
+                        </button>
+                        ${job.status === 'active' 
+                            ? `<button class="btn btn-warning btn-sm" onclick="pauseJob('${job.id}')">
+                                <i class="fas fa-pause"></i>
+                                Pause
+                               </button>`
+                            : `<button class="btn btn-success btn-sm" onclick="resumeJob('${job.id}')">
+                                <i class="fas fa-play"></i>
+                                Resume
+                               </button>`
+                        }
+                        <button class="btn btn-danger btn-sm" onclick="deleteJob('${job.id}')">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function sendNow(jobId) {
+            try {
+                const response = await fetch(`${API_BASE}/jobs/${jobId}/send-now`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    showAlert('Email sent successfully!', 'success');
+                    loadJobs();
+                } else {
+                    const error = await response.json();
+                    showAlert(`Error sending email: ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error sending email:', error);
+                showAlert('Error sending email', 'error');
+            }
+        }
+
+        async function pauseJob(jobId) {
+            try {
+                const response = await fetch(`${API_BASE}/jobs/${jobId}/pause`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    showAlert('Job paused successfully!', 'success');
+                    loadJobs();
+                } else {
+                    showAlert('Error pausing job', 'error');
+                }
+            } catch (error) {
+                console.error('Error pausing job:', error);
+                showAlert('Error pausing job', 'error');
+            }
+        }
+
+        async function resumeJob(jobId) {
+            try {
+                const response = await fetch(`${API_BASE}/jobs/${jobId}/resume`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    showAlert('Job resumed successfully!', 'success');
+                    loadJobs();
+                } else {
+                    showAlert('Error resuming job', 'error');
+                }
+            } catch (error) {
+                console.error('Error resuming job:', error);
+                showAlert('Error resuming job', 'error');
+            }
+        }
+
+        async function editJob(jobId) {
+            try {
+                const response = await fetch(`${API_BASE}/jobs/${jobId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const job = await response.json();
+                    editingJob = job;
+
+                    // Show the form if it's hidden
+                    if (!createJobVisible) {
+                        showCreateJob();
+                    }
+
+                    // Populate form
+                    document.getElementById('edit-job-id').value = job.id;
+                    document.getElementById('recipient').value = job.recipient;
+                    document.getElementById('subject').value = job.subject;
+                    document.getElementById('body').value = job.body;
+                    document.getElementById('every-n-days').value = job.every_n_days;
+
+                    // Update UI for edit mode
+                    document.getElementById('job-form-title').textContent = 'Edit Email Job';
+                    document.getElementById('job-form-description').textContent = 'Update your recurring email job';
+                    document.getElementById('job-form-icon').className = 'fas fa-edit';
+                    document.getElementById('submit-btn').innerHTML = '<i class="fas fa-save"></i> Update Email Job';
+                    document.getElementById('cancel-edit-btn').classList.remove('hidden');
+
+                    // Scroll to form
+                    document.getElementById('job-section').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showAlert('Error loading job for editing', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading job for editing:', error);
+                showAlert('Error loading job for editing', 'error');
+            }
+        }
+
+        function cancelEdit() {
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('edit-job-id').value = '';
+            document.getElementById('job-form').reset();
+            document.getElementById('every-n-days').value = 7;
+            
+            // Reset UI
+            document.getElementById('job-form-title').textContent = 'Create Email Job';
+            document.getElementById('job-form-description').textContent = 'Set up a new recurring email job';
+            document.getElementById('job-form-icon').className = 'fas fa-plus';
+            document.getElementById('submit-btn').innerHTML = '<i class="fas fa-plus"></i> Create Email Job';
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+            
+            editingJob = null;
+        }
+
+        async function deleteJob(jobId) {
+            if (!confirm('Are you sure you want to delete this job?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/jobs/${jobId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    showAlert('Job deleted successfully!', 'success');
+                    loadJobs();
+                } else {
+                    showAlert('Error deleting job', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting job:', error);
+                showAlert('Error deleting job', 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertsContainer = document.getElementById('alerts');
+            const alertId = 'alert-' + Date.now();
+            
+            const alert = document.createElement('div');
+            alert.id = alertId;
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            alertsContainer.appendChild(alert);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                const alertElement = document.getElementById(alertId);
+                if (alertElement) {
+                    alertElement.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
