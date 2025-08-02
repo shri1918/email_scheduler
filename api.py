@@ -44,9 +44,14 @@ email_service = EmailService()
 @app.on_event("startup")
 async def startup_event():
     """Initialize database connection and start scheduler on startup."""
-    await db.connect_to_mongo()
-    await email_scheduler.start()
-    logger.info("Application started successfully")
+    try:
+        await db.connect_to_mongo()
+        await email_scheduler.start()
+        logger.info("Application started successfully")
+    except Exception as e:
+        logger.error(f"Failed to start application: {e}")
+        # Don't raise the exception to allow the app to start
+        # The health check endpoint will indicate if the database is connected
 
 
 @app.on_event("shutdown")
@@ -428,8 +433,21 @@ async def upload_file(
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
+    db_status = "unknown"
+    try:
+        if db.client:
+            await db.client.admin.command('ping')
+            db_status = "connected"
+        else:
+            db_status = "not_connected"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+    
     return {
-        "status": "healthy",
+        "status": "healthy" if db_status == "connected" else "degraded",
         "timestamp": datetime.utcnow().isoformat(),
-        "scheduler_running": email_scheduler.is_running
+        "database": db_status,
+        "scheduler_running": email_scheduler.is_running,
+        "mongodb_url": settings.mongodb_url if settings.debug else "hidden",
+        "mongodb_db": settings.mongodb_db
     } 

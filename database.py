@@ -3,6 +3,7 @@ from pymongo import ASCENDING
 from typing import List, Optional
 from datetime import datetime
 import logging
+import asyncio
 from config import settings
 from models import User, EmailJob, EmailJobStatus
 
@@ -14,22 +15,53 @@ class Database:
     db = None
 
     async def connect_to_mongo(self):
-        """Create database connection."""
-        try:
-            self.client = AsyncIOMotorClient(settings.mongodb_url)
-            self.db = self.client[settings.mongodb_db]
-            
-            # Create indexes
-            await self.db.users.create_index([("google_id", ASCENDING)], unique=True)
-            await self.db.users.create_index([("email", ASCENDING)], unique=True)
-            await self.db.email_jobs.create_index([("user_id", ASCENDING)])
-            await self.db.email_jobs.create_index([("next_send", ASCENDING)])
-            await self.db.email_jobs.create_index([("status", ASCENDING)])
-            
-            logger.info("Connected to MongoDB")
-        except Exception as e:
-            logger.error(f"Failed to connect to MongoDB: {e}")
-            raise
+        """Create database connection with retry logic."""
+        max_retries = 3
+        retry_delay = 2
+        
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"Attempting to connect to MongoDB (attempt {attempt + 1}/{max_retries})")
+                logger.info(f"MongoDB URL: {settings.mongodb_url}")
+                logger.info(f"MongoDB Database: {settings.mongodb_db}")
+                
+                # Create client with connection timeout
+                self.client = AsyncIOMotorClient(
+                    settings.mongodb_url,
+                    serverSelectionTimeoutMS=10000,  # 10 seconds timeout
+                    connectTimeoutMS=10000,
+                    socketTimeoutMS=10000
+                )
+                
+                # Test the connection
+                await self.client.admin.command('ping')
+                
+                self.db = self.client[settings.mongodb_db]
+                
+                # Create indexes with error handling
+                try:
+                    await self.db.users.create_index([("google_id", ASCENDING)], unique=True)
+                    await self.db.users.create_index([("email", ASCENDING)], unique=True)
+                    await self.db.email_jobs.create_index([("user_id", ASCENDING)])
+                    await self.db.email_jobs.create_index([("next_send", ASCENDING)])
+                    await self.db.email_jobs.create_index([("status", ASCENDING)])
+                    logger.info("Database indexes created successfully")
+                except Exception as index_error:
+                    logger.warning(f"Failed to create some indexes: {index_error}")
+                    # Continue even if index creation fails
+                
+                logger.info("Successfully connected to MongoDB")
+                return
+                
+            except Exception as e:
+                logger.error(f"Failed to connect to MongoDB (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    logger.info(f"Retrying in {retry_delay} seconds...")
+                    await asyncio.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                else:
+                    logger.error("Failed to connect to MongoDB after all retries")
+                    raise
 
     async def close_mongo_connection(self):
         """Close database connection."""

@@ -43,6 +43,20 @@ A FastAPI-based SaaS application that enables users to schedule recurring emails
 - Google Cloud Project with Gmail API enabled
 - Google OAuth2 credentials
 
+## Quick Start
+
+### Local Development
+See [SETUP.md](SETUP.md) for detailed local development setup.
+
+### Railway Deployment
+See [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) for Railway deployment instructions.
+
+### Deployment Verification
+Run the deployment check script to verify your configuration:
+```bash
+python railway_check.py
+```
+
 ## Setup Instructions
 
 ### 1. Clone and Setup Environment
@@ -391,6 +405,16 @@ The application handles various error scenarios:
 
 ## Deployment
 
+### Railway Deployment (Recommended)
+
+The application is optimized for Railway deployment with:
+- Environment variable configuration
+- Database connection retry logic
+- Health check endpoints
+- Graceful error handling
+
+See [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) for detailed instructions.
+
 ### Docker Deployment
 
 ```dockerfile
@@ -416,6 +440,18 @@ GOOGLE_REDIRECT_URI=https://your-domain.com/auth/google/callback
 JWT_SECRET_KEY=your-production-secret-key
 DEBUG=False
 ```
+
+## Recent Updates
+
+### Railway Deployment Fixes (Latest)
+
+- ✅ Fixed MongoDB connection issues on Railway
+- ✅ Added environment variable support for all configuration
+- ✅ Implemented database connection retry logic
+- ✅ Enhanced error handling and logging
+- ✅ Added health check endpoint with database status
+- ✅ Created Railway deployment verification script
+- ✅ Updated Google OAuth redirect URI handling
 
 ## Contributing
 
